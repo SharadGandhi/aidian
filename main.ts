@@ -1,6 +1,7 @@
 import { App, Plugin, PluginSettingTab, Setting, View, WorkspaceLeaf, ViewCreator } from 'obsidian';
 import { GoogleGenerativeAI, GenerativeModel } from '@google/generative-ai';
 import { marked } from 'marked';
+import { MarkdownRenderer } from 'obsidian';
 
 interface AidianSettings {
     apiKey: string;
@@ -200,9 +201,15 @@ class AidianChatView extends View {
     addMessage(role: string, content: string) {
         const messageEl = this.chatContainer.createDiv('aidian-message');
         messageEl.addClass(`aidian-message-${role}`);
-        
         const contentEl = messageEl.createDiv('aidian-message-content');
-        contentEl.innerHTML = marked.parse(content) as string;
+        
+        // Use Obsidian's MarkdownRenderer for safe rendering
+        MarkdownRenderer.renderMarkdown(
+            content,
+            contentEl,
+            '', // source path
+            this // view
+        );
         
         this.messages.push({ role, content });
         this.chatContainer.scrollTop = this.chatContainer.scrollHeight;
