@@ -4,9 +4,9 @@
     "version": "1.0.0",
     "minAppVersion": "0.15.0",
     "description": "Chat with Gemini AI using your API key, with context from your notes",
-    "author": "Your Name",
+    "author": "Unwrangler.com",
     "isDesktopOnly": false,
-    "authorUrl": "",
-    "fundingUrl": "",
-    "repo": ""
+    "authorUrl": "https://unwrangler.com",
+    "fundingUrl": "https://unwrangler.com",
+    "repo": "https://github.com/SharadGandhi/aidian"
 } 
