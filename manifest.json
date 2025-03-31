@@ -1,0 +1,12 @@
+{
+    "id": "aidian",
+    "name": "Aidian",
+    "version": "1.0.0",
+    "minAppVersion": "0.15.0",
+    "description": "Chat with Gemini AI using your API key, with context from your notes",
+    "author": "Your Name",
+    "isDesktopOnly": false,
+    "authorUrl": "",
+    "fundingUrl": "",
+    "repo": ""
+} 
