@@ -32,4 +32,7 @@ coverage/
 .npm
 
 # Optional eslint cache
-.eslintcache 
+.eslintcache
+
+# Local configuration
+config.js 
