@@ -134,12 +134,7 @@ graph TD
    - Consistent naming conventions
    - TypeScript type safety
 
-2. **Testing**
-   - Unit test coverage
-   - Integration testing
-   - UI testing
-
-3. **Documentation**
+2. **Documentation**
    - Code comments
    - Architecture documentation
    - User guides 
