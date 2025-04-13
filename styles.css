@@ -128,4 +128,29 @@
     border-radius: 4px;
     overflow-x: auto;
     user-select: all;
+}
+
+.aidian-message-header {
+    display: flex;
+    justify-content: flex-end;
+    padding: 4px;
+    margin-bottom: 4px;
+}
+
+.aidian-copy-button {
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+    color: var(--text-normal);
+}
+
+.aidian-copy-button:hover {
+    opacity: 1;
+}
+
+.aidian-message-assistant .aidian-copy-button {
+    color: var(--text-normal);
 } 
