@@ -6,7 +6,7 @@
 
 ## Manual Installation Steps
 
-1. Download the `aidian.zip` file from the [latest release](https://github.com/SharadGandhi/aidian/releases/latest)
+1. Download the `aidian.zip` file from [here](https://github.com/SharadGandhi/aidian/blob/dev/dist/aidian.zip)
 
 2. Extract the contents of the zip file
 
