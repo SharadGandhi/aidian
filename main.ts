@@ -102,6 +102,10 @@ class AidianChatView extends View {
         return 'Aidian Chat';
     }
 
+    getIcon(): string {
+        return 'message-square';
+    }
+
     async onOpen() {
         this.containerEl.empty();
         this.containerEl.addClass('aidian-chat-container');
