@@ -139,15 +139,15 @@ class AidianChatView extends View {
         // Set the default model
         this.modelSelect.value = this.plugin.settings.defaultModel;
 
-        // Create send button
-        const sendButton = controlsRow.createEl('button', 'aidian-send-button');
-        sendButton.textContent = 'Send';
-        sendButton.addEventListener('click', () => this.sendMessage());
-
         // Create clear button
         this.clearButton = controlsRow.createEl('button', 'aidian-clear-button');
         this.clearButton.textContent = 'Clear Chat';
         this.clearButton.addEventListener('click', () => this.clearChat());
+
+        // Create send button
+        const sendButton = controlsRow.createEl('button', 'aidian-send-button');
+        sendButton.textContent = 'Send';
+        sendButton.addEventListener('click', () => this.sendMessage());
     }
 
     async sendMessage() {
@@ -201,6 +201,23 @@ class AidianChatView extends View {
     addMessage(role: string, content: string) {
         const messageEl = this.chatContainer.createDiv('aidian-message');
         messageEl.addClass(`aidian-message-${role}`);
+        
+        // Create message header with copy button for assistant messages
+        const messageHeader = messageEl.createDiv('aidian-message-header');
+        if (role === 'assistant') {
+            const copyButton = messageHeader.createEl('button', 'aidian-copy-button');
+            copyButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+            copyButton.addEventListener('click', () => {
+                navigator.clipboard.writeText(content).then(() => {
+                    // Show copied indicator
+                    copyButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+                    setTimeout(() => {
+                        copyButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+                    }, 2000);
+                });
+            });
+        }
+        
         const contentEl = messageEl.createDiv('aidian-message-content');
         
         // Use Obsidian's MarkdownRenderer for safe rendering
