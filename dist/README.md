@@ -14,6 +14,7 @@
    - Windows: `%appdata%\obsidian\plugins\aidian\`
    - Mac: `~/Library/Application Support/obsidian/plugins/aidian/`
    - Linux: `~/.config/obsidian/plugins/aidian/`
+   - iCloud (Mac): `~/Library/Mobile Documents/iCloud~md~obsidian/Documents/[Your Vault Name]/.obsidian/plugins/aidian/`
 
 4. Copy the extracted files into the plugin directory
 
@@ -42,6 +43,7 @@ If you encounter any issues:
 2. Check that the plugin is enabled in Obsidian
 3. Verify your API key is correct
 4. Try restarting Obsidian
+5. For iCloud vaults, ensure you have write permissions to the plugins directory
 
 ## Support
 For support, please [open an issue](https://github.com/SharadGandhi/aidian/issues) on GitHub. 
