@@ -1,7 +1,5 @@
-import { App, Plugin, PluginSettingTab, Setting, View, WorkspaceLeaf, ViewCreator } from 'obsidian';
+import { App, Plugin, PluginSettingTab, Setting, View, WorkspaceLeaf, ViewCreator, MarkdownRenderer } from 'obsidian';
 import { GoogleGenerativeAI, GenerativeModel } from '@google/generative-ai';
-import { marked } from 'marked';
-import { MarkdownRenderer } from 'obsidian';
 
 interface AidianSettings {
     apiKey: string;
@@ -52,7 +50,7 @@ export default class AidianPlugin extends Plugin {
         this.registerView('aidian-chat', (leaf: WorkspaceLeaf) => new AidianChatView(leaf, this));
 
         // Add ribbon icon
-        this.addRibbonIcon('message-square', 'Open Aidian Chat', () => {
+        this.addRibbonIcon('message-square', 'Open aidian chat', () => {
             this.activateView();
         });
 
@@ -99,7 +97,7 @@ class AidianChatView extends View {
     }
 
     getDisplayText(): string {
-        return 'Aidian Chat';
+        return 'Aidian chat';
     }
 
     async onOpen() {
@@ -146,7 +144,7 @@ class AidianChatView extends View {
 
         // Create clear button
         this.clearButton = controlsRow.createEl('button', 'aidian-clear-button');
-        this.clearButton.textContent = 'Clear Chat';
+        this.clearButton.textContent = 'Clear chat';
         this.clearButton.addEventListener('click', () => this.clearChat());
     }
 
@@ -162,7 +160,7 @@ class AidianChatView extends View {
         const activeFile = this.app.workspace.getActiveFile();
         let context = '';
         if (activeFile) {
-            context = await this.app.vault.read(activeFile);
+            context = await this.app.vault.cachedRead(activeFile);
         }
 
         try {
@@ -201,14 +199,33 @@ class AidianChatView extends View {
     addMessage(role: string, content: string) {
         const messageEl = this.chatContainer.createDiv('aidian-message');
         messageEl.addClass(`aidian-message-${role}`);
+        
+        // Create message header with copy button for assistant messages
+        const messageHeader = messageEl.createDiv('aidian-message-header');
+        if (role === 'assistant') {
+            const copyButton = messageHeader.createEl('button', 'aidian-copy-button');
+            copyButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+            copyButton.addEventListener('click', () => {
+                navigator.clipboard.writeText(content).then(() => {
+                    // Show copied indicator
+                    copyButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+                    setTimeout(() => {
+                        copyButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+                    }, 2000);
+                });
+            });
+        }
+        
         const contentEl = messageEl.createDiv('aidian-message-content');
         
         // Use Obsidian's MarkdownRenderer for safe rendering
-        MarkdownRenderer.renderMarkdown(
+        const activeFile = this.app.workspace.getActiveFile();
+        MarkdownRenderer.render(
+            this.app,
             content,
             contentEl,
-            '', // source path
-            this // view
+            activeFile?.path || '',
+            this
         );
         
         this.messages.push({ role, content });
@@ -228,10 +245,8 @@ class AidianSettingTab extends PluginSettingTab {
         const { containerEl } = this;
         containerEl.empty();
 
-        containerEl.createEl('h2', { text: 'Aidian Settings' });
-
         new Setting(containerEl)
-            .setName('Gemini API Key')
+            .setName('Gemini API key')
             .setDesc('Enter your Gemini API key')
             .addText(text => text
                 .setValue(this.plugin.settings.apiKey)
@@ -241,7 +256,7 @@ class AidianSettingTab extends PluginSettingTab {
                 }));
 
         new Setting(containerEl)
-            .setName('Default Model')
+            .setName('Default model')
             .setDesc('Select the default Gemini model to use')
             .addDropdown(dropdown => {
                 Object.entries(MODEL_VERSIONS).forEach(([key, value]) => {
@@ -256,12 +271,12 @@ class AidianSettingTab extends PluginSettingTab {
             });
 
         new Setting(containerEl)
-            .setName('API Version')
+            .setName('API version')
             .setDesc('Select which API version to use (v1beta recommended for newer models)')
             .addDropdown(dropdown => {
                 dropdown
-                    .addOption('v1', 'v1 (Stable)')
-                    .addOption('v1beta', 'v1beta (Latest)')
+                    .addOption('v1', 'V1 (stable)')
+                    .addOption('v1beta', 'V1beta (latest)')
                     .setValue(this.plugin.settings.apiVersion)
                     .onChange(async (value: 'v1' | 'v1beta') => {
                         this.plugin.settings.apiVersion = value;

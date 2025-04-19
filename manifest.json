@@ -2,11 +2,9 @@
     "id": "aidian",
     "name": "Aidian",
     "version": "1.0.0",
-    "minAppVersion": "0.15.0",
-    "description": "Chat with Google's Gemini AI, with support for both v1 and v1beta API versions",
+    "minAppVersion": "1.0.0",
+    "description": "Chat with Google's Gemini AI models directly in Obsidian",
     "author": "Sharad Gandhi",
-    "isDesktopOnly": false,
     "authorUrl": "https://github.com/SharadGandhi",
-    "fundingUrl": "https://github.com/SharadGandhi/aidian",
-    "repo": "https://github.com/SharadGandhi/aidian"
+    "isDesktopOnly": false
 } 
