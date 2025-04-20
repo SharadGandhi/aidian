@@ -50,7 +50,7 @@ export default class AidianPlugin extends Plugin {
         this.registerView('aidian-chat', (leaf: WorkspaceLeaf) => new AidianChatView(leaf, this));
 
         // Add ribbon icon
-        this.addRibbonIcon('message-square', 'Open aidian chat', () => {
+        this.addRibbonIcon('message-square', 'Open Aidian chat', () => {
             this.activateView();
         });
 
@@ -246,9 +246,14 @@ class AidianSettingTab extends PluginSettingTab {
         containerEl.empty();
 
         new Setting(containerEl)
+            .setName('API Settings')
+            .setHeading();
+
+        new Setting(containerEl)
             .setName('Gemini API key')
             .setDesc('Enter your Gemini API key')
             .addText(text => text
+                .setPlaceholder('Enter your API key')
                 .setValue(this.plugin.settings.apiKey)
                 .onChange(async (value) => {
                     this.plugin.settings.apiKey = value;
@@ -257,31 +262,27 @@ class AidianSettingTab extends PluginSettingTab {
 
         new Setting(containerEl)
             .setName('Default model')
-            .setDesc('Select the default Gemini model to use')
-            .addDropdown(dropdown => {
-                Object.entries(MODEL_VERSIONS).forEach(([key, value]) => {
-                    dropdown.addOption(key, value.name);
-                });
-                return dropdown
-                    .setValue(this.plugin.settings.defaultModel)
-                    .onChange(async (value) => {
-                        this.plugin.settings.defaultModel = value;
-                        await this.plugin.saveSettings();
-                    });
-            });
+            .setDesc('Select the default model to use')
+            .addDropdown(dropdown => dropdown
+                .addOption('gemini-1.5-pro', 'Gemini 1.5 Pro')
+                .addOption('gemini-1.5-flash', 'Gemini 1.5 Flash')
+                .addOption('gemini-2.0-flash', 'Gemini 2.0 Flash')
+                .setValue(this.plugin.settings.defaultModel)
+                .onChange(async (value) => {
+                    this.plugin.settings.defaultModel = value;
+                    await this.plugin.saveSettings();
+                }));
 
         new Setting(containerEl)
             .setName('API version')
-            .setDesc('Select which API version to use (v1beta recommended for newer models)')
-            .addDropdown(dropdown => {
-                dropdown
-                    .addOption('v1', 'V1 (stable)')
-                    .addOption('v1beta', 'V1beta (latest)')
-                    .setValue(this.plugin.settings.apiVersion)
-                    .onChange(async (value: 'v1' | 'v1beta') => {
-                        this.plugin.settings.apiVersion = value;
-                        await this.plugin.saveSettings();
-                    });
-            });
+            .setDesc('Select the API version to use')
+            .addDropdown(dropdown => dropdown
+                .addOption('v1', 'V1 (Stable)')
+                .addOption('v1beta', 'V1beta (Latest)')
+                .setValue(this.plugin.settings.apiVersion)
+                .onChange(async (value) => {
+                    this.plugin.settings.apiVersion = value as 'v1' | 'v1beta';
+                    await this.plugin.saveSettings();
+                }));
     }
 }
