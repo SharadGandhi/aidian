@@ -1,7 +1,5 @@
-import { App, Plugin, PluginSettingTab, Setting, View, WorkspaceLeaf, ViewCreator } from 'obsidian';
+import { App, Plugin, PluginSettingTab, Setting, View, WorkspaceLeaf, ViewCreator, MarkdownRenderer } from 'obsidian';
 import { GoogleGenerativeAI, GenerativeModel } from '@google/generative-ai';
-import { marked } from 'marked';
-import { MarkdownRenderer } from 'obsidian';
 
 interface AidianSettings {
     apiKey: string;
@@ -52,7 +50,7 @@ export default class AidianPlugin extends Plugin {
         this.registerView('aidian-chat', (leaf: WorkspaceLeaf) => new AidianChatView(leaf, this));
 
         // Add ribbon icon
-        this.addRibbonIcon('message-square', 'Open Aidian Chat', () => {
+        this.addRibbonIcon('message-square', 'Open Aidian chat', () => {
             this.activateView();
         });
 
@@ -99,7 +97,7 @@ class AidianChatView extends View {
     }
 
     getDisplayText(): string {
-        return 'Aidian Chat';
+        return 'Aidian chat';
     }
 
     getIcon(): string {
@@ -145,7 +143,7 @@ class AidianChatView extends View {
 
         // Create clear button
         this.clearButton = controlsRow.createEl('button', 'aidian-clear-button');
-        this.clearButton.textContent = 'Clear Chat';
+        this.clearButton.textContent = 'Clear chat';
         this.clearButton.addEventListener('click', () => this.clearChat());
 
         // Create send button
@@ -166,7 +164,7 @@ class AidianChatView extends View {
         const activeFile = this.app.workspace.getActiveFile();
         let context = '';
         if (activeFile) {
-            context = await this.app.vault.read(activeFile);
+            context = await this.app.vault.cachedRead(activeFile);
         }
 
         try {
@@ -225,11 +223,13 @@ class AidianChatView extends View {
         const contentEl = messageEl.createDiv('aidian-message-content');
         
         // Use Obsidian's MarkdownRenderer for safe rendering
-        MarkdownRenderer.renderMarkdown(
+        const activeFile = this.app.workspace.getActiveFile();
+        MarkdownRenderer.render(
+            this.app,
             content,
             contentEl,
-            '', // source path
-            this // view
+            activeFile?.path || '',
+            this
         );
         
         this.messages.push({ role, content });
@@ -249,12 +249,15 @@ class AidianSettingTab extends PluginSettingTab {
         const { containerEl } = this;
         containerEl.empty();
 
-        containerEl.createEl('h2', { text: 'Aidian Settings' });
+        new Setting(containerEl)
+            .setName('API Settings')
+            .setHeading();
 
         new Setting(containerEl)
-            .setName('Gemini API Key')
+            .setName('Gemini API key')
             .setDesc('Enter your Gemini API key')
             .addText(text => text
+                .setPlaceholder('Enter your API key')
                 .setValue(this.plugin.settings.apiKey)
                 .onChange(async (value) => {
                     this.plugin.settings.apiKey = value;
@@ -262,32 +265,28 @@ class AidianSettingTab extends PluginSettingTab {
                 }));
 
         new Setting(containerEl)
-            .setName('Default Model')
-            .setDesc('Select the default Gemini model to use')
-            .addDropdown(dropdown => {
-                Object.entries(MODEL_VERSIONS).forEach(([key, value]) => {
-                    dropdown.addOption(key, value.name);
-                });
-                return dropdown
-                    .setValue(this.plugin.settings.defaultModel)
-                    .onChange(async (value) => {
-                        this.plugin.settings.defaultModel = value;
-                        await this.plugin.saveSettings();
-                    });
-            });
+            .setName('Default model')
+            .setDesc('Select the default model to use')
+            .addDropdown(dropdown => dropdown
+                .addOption('gemini-1.5-pro', 'Gemini 1.5 Pro')
+                .addOption('gemini-1.5-flash', 'Gemini 1.5 Flash')
+                .addOption('gemini-2.0-flash', 'Gemini 2.0 Flash')
+                .setValue(this.plugin.settings.defaultModel)
+                .onChange(async (value) => {
+                    this.plugin.settings.defaultModel = value;
+                    await this.plugin.saveSettings();
+                }));
 
         new Setting(containerEl)
-            .setName('API Version')
-            .setDesc('Select which API version to use (v1beta recommended for newer models)')
-            .addDropdown(dropdown => {
-                dropdown
-                    .addOption('v1', 'v1 (Stable)')
-                    .addOption('v1beta', 'v1beta (Latest)')
-                    .setValue(this.plugin.settings.apiVersion)
-                    .onChange(async (value: 'v1' | 'v1beta') => {
-                        this.plugin.settings.apiVersion = value;
-                        await this.plugin.saveSettings();
-                    });
-            });
+            .setName('API version')
+            .setDesc('Select the API version to use')
+            .addDropdown(dropdown => dropdown
+                .addOption('v1', 'V1 (Stable)')
+                .addOption('v1beta', 'V1beta (Latest)')
+                .setValue(this.plugin.settings.apiVersion)
+                .onChange(async (value) => {
+                    this.plugin.settings.apiVersion = value as 'v1' | 'v1beta';
+                    await this.plugin.saveSettings();
+                }));
     }
 }
