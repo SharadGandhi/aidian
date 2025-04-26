@@ -260,10 +260,6 @@ class AidianSettingTab extends PluginSettingTab {
         containerEl.empty();
 
         new Setting(containerEl)
-            .setName('API Settings')
-            .setHeading();
-
-        new Setting(containerEl)
             .setName('Gemini API key')
             .setDesc('Enter your Gemini API key')
             .addText(text => text
