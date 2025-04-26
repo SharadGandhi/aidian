@@ -54,6 +54,15 @@ export default class AidianPlugin extends Plugin {
             this.activateView();
         });
 
+        // Add command to open chat
+        this.addCommand({
+            id: 'open-aidian-chat',
+            name: 'Open Aidian chat',
+            callback: () => {
+                this.activateView();
+            }
+        });
+
         // Add settings tab
         this.addSettingTab(new AidianSettingTab(this.app, this));
     }
@@ -208,16 +217,21 @@ class AidianChatView extends View {
         const messageHeader = messageEl.createDiv('aidian-message-header');
         if (role === 'assistant') {
             const copyButton = messageHeader.createEl('button', 'aidian-copy-button');
-            copyButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+            const copyIcon = document.createElement('div');
+            copyIcon.addClass('copy-icon');
+            
             copyButton.addEventListener('click', () => {
                 navigator.clipboard.writeText(content).then(() => {
                     // Show copied indicator
-                    copyButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+                    copyIcon.addClass('check-icon');
+                    
                     setTimeout(() => {
-                        copyButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+                        copyIcon.removeClass('check-icon');
                     }, 2000);
                 });
             });
+            
+            copyButton.appendChild(copyIcon);
         }
         
         const contentEl = messageEl.createDiv('aidian-message-content');
@@ -248,10 +262,6 @@ class AidianSettingTab extends PluginSettingTab {
     display(): void {
         const { containerEl } = this;
         containerEl.empty();
-
-        new Setting(containerEl)
-            .setName('API Settings')
-            .setHeading();
 
         new Setting(containerEl)
             .setName('Gemini API key')
